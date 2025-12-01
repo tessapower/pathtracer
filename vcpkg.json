@@ -1,0 +1,7 @@
+{
+  "name": "pathtracer",
+  "version": "0.1.0",
+  "dependencies": [
+    "stb"
+  ]
+}
