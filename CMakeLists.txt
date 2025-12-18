@@ -27,10 +27,7 @@ target_include_directories(pathtracer PRIVATE ${Stb_INCLUDE_DIR})
 #########################################################
 # Include directory for header files
 #########################################################
-include_directories(
-    "${VCPKG_INSTALLED_DIR}/${MATCHED_TRIPLET}/include"
-    "${PROJECT_SOURCE_DIR}/include"
-    )
+target_include_directories(pathtracer PRIVATE "${PROJECT_SOURCE_DIR}/include")
 
 #########################################################
 # Source Files
