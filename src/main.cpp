@@ -1,3 +1,6 @@
+#include <cstdint>
+#include <cstdlib>
+#include <glm/glm.hpp>
 #include <iostream>
 #include <vector>
 
@@ -7,7 +10,24 @@
 #include "ray/ray.h"
 #include "utils/color.h"
 
+static bool hit_sphere(const glm::vec3& center, const double radius,
+                       const ray& r) {
+  // Origin to center vector
+  const auto oc = center - r.origin();
+  // Quadratic coefficients
+  const auto a = glm::dot(r.direction(), r.direction());
+  const auto b = -2.0f * glm::dot(r.direction(), oc);
+  const auto c = glm::dot(oc, oc) - radius * radius;
+  auto discriminant = b * b - 4 * a * c;
+
+  // If discriminant is positive, the ray hit the sphere
+  return discriminant > 0;
+}
+
 static auto ray_color(const ray& r) -> color {
+  if (hit_sphere(glm::vec3(0.0, 0.0, -1.0), 0.5, r))
+    return color(1.0f, 0.0f, 0.0f);
+
   glm::vec3 unit_dir = glm::normalize(r.direction());
   auto a = 0.5f * (unit_dir.y + 1.0f);
   return glm::mix(color(1.0f, 1.0f, 1.0f), color(0.5f, 0.7f, 1.0f), a);
