@@ -1,6 +1,8 @@
 #include <cstdint>
 #include <cstdlib>
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
 #include <iostream>
 #include <vector>
 
@@ -10,23 +12,29 @@
 #include "ray/ray.h"
 #include "utils/color.h"
 
-static bool hit_sphere(const glm::vec3& center, const double radius,
-                       const ray& r) {
+static auto hit_sphere(const glm::vec3& center, const double radius,
+                       const ray& r) -> double {
   // Origin to center vector
   const auto oc = center - r.origin();
   // Quadratic coefficients
-  const auto a = glm::dot(r.direction(), r.direction());
-  const auto b = -2.0f * glm::dot(r.direction(), oc);
-  const auto c = glm::dot(oc, oc) - radius * radius;
-  auto discriminant = b * b - 4 * a * c;
+  const auto a = glm::length2(r.direction());
+  const auto h = glm::dot(r.direction(), oc);
+  const auto c = glm::length2(oc) -radius* radius;
+  const auto discriminant = h * h -  a * c;
 
   // If discriminant is positive, the ray hit the sphere
-  return discriminant > 0;
+  return (discriminant < 0) ? -1.0 : (h - std::sqrt(discriminant)) / a;
 }
 
 static auto ray_color(const ray& r) -> color {
-  if (hit_sphere(glm::vec3(0.0, 0.0, -1.0), 0.5, r))
-    return color(1.0f, 0.0f, 0.0f);
+  const auto t = hit_sphere(glm::vec3(0.0, 0.0, -1.0), 0.5, r);
+
+  if (t > 0.0) {
+    glm::vec3 n =
+        glm::normalize(r.at(static_cast<float>(t)) - glm::vec3(0.0, 0.0, -1.0));
+
+    return 0.5f * color(n.x + 1.0f, n.y + 1.0f, n.z + 1.0f);
+  }
 
   glm::vec3 unit_dir = glm::normalize(r.direction());
   auto a = 0.5f * (unit_dir.y + 1.0f);
