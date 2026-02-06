@@ -3,6 +3,15 @@
   "version": "0.1.0",
   "dependencies": [
     "stb",
-    "glm"
-  ]
+    "glm",
+    "gtest"
+  ],
+  "features": {
+    "pix": {
+      "description": "PIX profiling support",
+      "dependencies": [
+        "winpixeventruntime"
+      ]
+    }
+  }
 }

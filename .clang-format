@@ -1,0 +1,58 @@
+# clang-format configuration for Microsoft C++ conventions
+# Based on LLVM style, customized to match Windows/DirectX coding standards
+
+BasedOnStyle: LLVM
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+
+# Line length
+ColumnLimit: 120
+
+# Braces - Allman style (braces on new line)
+BreakBeforeBraces: Allman
+
+# Pointer and reference alignment
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+# Namespaces
+NamespaceIndentation: None
+CompactNamespaces: false
+
+# Functions
+AllowShortFunctionsOnASingleLine: Empty
+AlwaysBreakAfterReturnType: None
+
+# Control statements
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# Spacing
+SpaceAfterCStyleCast: false
+SpaceBeforeParens: ControlStatements
+SpaceBeforeAssignmentOperators: true
+SpaceInEmptyParentheses: false
+
+# Other
+AlignConsecutiveAssignments: false
+AlignTrailingComments: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+# Include sorting
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  # Project headers
+  - Regex:           '^".*'
+    Priority:        1
+  # Windows/DirectX headers
+  - Regex:           '^<(windows|d3d|dxgi)'
+    Priority:        2
+  # C++ standard library
+  - Regex:           '^<.*'
+    Priority:        3
