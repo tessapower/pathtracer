@@ -25,9 +25,9 @@ auto write_color(std::vector<unsigned char>& image, int idx,
   int gbyte = int(255.999 * g);
   int bbyte = int(255.999 * b);
 
-  image[idx++] = rbyte;
-  image[idx++] = gbyte;
-  image[idx] = bbyte;
+  image[idx++] = static_cast<unsigned char>(rbyte);
+  image[idx++] = static_cast<unsigned char>(gbyte);
+  image[idx] = static_cast<unsigned char>(bbyte);
 }
 
 #endif
