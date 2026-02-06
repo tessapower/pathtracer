@@ -9,6 +9,7 @@ A from-scratch implementation of a real-time path tracer using DirectX 12 comput
 ## Why This Project?
 
 I enjoy building graphics engines from the ground up to deeply understand how they work. This project explores:
+
 - How to architect a real-time path tracer using DirectX 12
 - Compute shader programming for ray tracing without DXR
 - Performance optimization techniques to achieve interactive framerates
@@ -20,6 +21,7 @@ The goal is **real-time performance** (30-60 FPS) with progressive quality impro
 ## Technical Focus Areas
 
 ### Real-Time Rendering
+
 - Low sample counts per frame (1-4 SPP)
 - Progressive accumulation for static scenes
 - Temporal reprojection for moving cameras
@@ -27,18 +29,21 @@ The goal is **real-time performance** (30-60 FPS) with progressive quality impro
 - Denoising to compensate for low sample counts
 
 ### GPU Compute Architecture
+
 - DirectX 12 compute shaders (exploring both compute and DXR paths)
 - Efficient resource and memory management
 - Bounding Volume Hierarchies for acceleration
 - Asynchronous compute for parallelism
 
 ### Performance Engineering
+
 - Comprehensive profiling with PIX and Windows Performance Toolkit
 - GPU timeline analysis and bottleneck identification
 - Memory usage optimization and budgeting
 - Automated benchmarking for regression detection
 
 ### Production Practices
+
 - Proper error handling and validation (Debug Layer, GPU-Based Validation, DRED)
 - Telemetry and metrics collection
 - Security-conscious code (bounds checking, safe integer operations)
@@ -47,12 +52,14 @@ The goal is **real-time performance** (30-60 FPS) with progressive quality impro
 ## Current Implementation
 
 ### Completed
+
 - ✅ Basic ray tracing foundation (ray class, sphere intersection)
 - ✅ Camera and viewport setup
 - ✅ Simple CPU-based reference implementation
 - ✅ PNG image output
 
 ### In Progress
+
 - 🚧 DirectX 12 infrastructure (device, command queues, resources)
 - 🚧 Compute shader ray tracing kernel
 - 🚧 Performance profiling integration (PIX markers, GPU timestamps)
@@ -60,9 +67,11 @@ The goal is **real-time performance** (30-60 FPS) with progressive quality impro
 ## Implementation Roadmap
 
 ### Phase 1: DX12 Compute Shader Foundation
+
 Transform the CPU path tracer to use DirectX 12 compute shaders for GPU acceleration.
 
 **Key Components:**
+
 - DX12 device initialization and resource management
 - Descriptor heap management for shader resources
 - Command queue and command list infrastructure
@@ -73,9 +82,11 @@ Transform the CPU path tracer to use DirectX 12 compute shaders for GPU accelera
 **Target:** GPU-accelerated path tracer achieving 10x+ performance improvement over CPU baseline, maintaining interactive framerates.
 
 ### Phase 2: Real-Time Optimizations & Benchmarking
+
 Achieve and maintain real-time framerates with comprehensive performance measurement.
 
 **Key Components:**
+
 - Progressive accumulation system for quality convergence
 - Temporal reprojection for camera movement
 - Frame pacing and budget management
@@ -87,9 +98,11 @@ Achieve and maintain real-time framerates with comprehensive performance measure
 **Target:** Consistent 30+ FPS at 1080p with progressive quality improvement for static scenes.
 
 ### Phase 3: Acceleration Structures & Advanced Optimization
+
 Scale to complex scenes while maintaining real-time performance.
 
 **Key Components:**
+
 - Bounding Volume Hierarchy (BVH) construction and traversal
 - GPU-based BVH updates for dynamic scenes
 - Async compute for overlapping work (compute + copy operations)
@@ -100,9 +113,11 @@ Scale to complex scenes while maintaining real-time performance.
 **Target:** Handle 10K+ primitives at 30+ FPS, demonstrating O(log n) vs O(n) performance scaling.
 
 ### Phase 4: Quality & Robustness
+
 Build reliability and maintainability into the codebase.
 
 **Key Components:**
+
 - Comprehensive error handling and validation (Debug Layer, GPU-Based Validation, DRED)
 - Security best practices (bounds checking, integer overflow protection, input sanitization)
 - ETW (Event Tracing for Windows) provider for system-level profiling
@@ -113,9 +128,11 @@ Build reliability and maintainability into the codebase.
 **Target:** Zero warnings, zero leaks, robust error handling, professional code quality.
 
 ### Phase 5: Advanced Features
+
 Push beyond basics to explore cutting-edge real-time rendering techniques.
 
 **Possible Directions:**
+
 - **Denoising** - Spatial and temporal denoising for low-sample-count renders (Intel OIDN integration)
 - **Advanced Materials** - PBR materials (metallic, roughness, glass) with importance sampling
 - **Dynamic Scenes** - BVH refitting and rebuilding for animated geometry
@@ -128,17 +145,20 @@ Push beyond basics to explore cutting-edge real-time rendering techniques.
 ## Technology Stack
 
 ### Core Technologies
+
 - **DirectX 12** - Primary graphics API
 - **HLSL** - Shader programming language
 - **C++23** - Modern C++ with latest features
 - **CMake** - Build system
 
 ### Libraries
+
 - **GLM** - Mathematics library for vectors and matrices
 - **stb_image_write** - Image output (PNG format)
 - **vcpkg** - Dependency management
 
 ### Profiling & Debugging Tools
+
 - **PIX for Windows** - GPU profiling and debugging
 - **Windows Performance Toolkit** - System-level performance analysis (ETW/WPA)
 - **WinPixEventRuntime** - PIX markers in code
@@ -146,6 +166,7 @@ Push beyond basics to explore cutting-edge real-time rendering techniques.
 - **WinDbg** - Advanced debugging scenarios
 
 ### Future Additions
+
 - DirectXTex (texture processing)
 - D3D12 Memory Allocator (advanced memory management)
 - Google Test or Catch2 (testing framework)
@@ -153,6 +174,7 @@ Push beyond basics to explore cutting-edge real-time rendering techniques.
 ## Building
 
 ### Prerequisites
+
 - Windows 10/11 (version 2004 or later)
 - Visual Studio 2022 (17.8 or later)
 - Windows SDK 10.0.22000.0 or later
@@ -187,18 +209,19 @@ cmake --build build --config Release
 
 Target metrics for a successful real-time path tracer:
 
-| Metric | Target | Measured |
-|--------|--------|----------|
-| Frame Time (1080p, 1K spheres) | < 33ms (30 FPS) | TBD |
-| Frame Time (1080p, 10K spheres w/ BVH) | < 33ms (30 FPS) | TBD |
-| Ray Throughput | > 1 billion rays/second | TBD |
-| Memory Usage | < 512MB for typical scene | TBD |
-| Startup Time | < 1 second to first frame | TBD |
-| Convergence Time (static scene) | < 5 seconds to clean image | TBD |
+| Metric                      | Target | Measured |
+| :------------------------------------- | --------------- | ---------- |
+| Frame Time (1080p, 1K spheres)         | < 33ms (30 FPS)            | TBD |
+| Frame Time (1080p, 10K spheres w/ BVH) | < 33ms (30 FPS)            | TBD |
+| Ray Throughput                         | > 1 billion rays/second    | TBD |
+| Memory Usage                           | < 512MB for typical scene  | TBD |
+| Startup Time                           | < 1 second to first frame  | TBD |
+| Convergence Time (static scene)        | < 5 seconds to clean image | TBD |
 
 **Hardware Target:** Modern gaming GPU (NVIDIA RTX 3060 / AMD RX 6600 or better)
 
 **Quality vs Performance Trade-offs:**
+
 - 1-4 samples per pixel (SPP) per frame
 - Progressive accumulation when camera is static
 - Denoising to maintain visual quality with low SPP
