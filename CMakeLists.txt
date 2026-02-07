@@ -212,6 +212,9 @@ endif()
 #########################################################
 add_executable(pathtracer ${ALL_SOURCES} ${HEADERS})
 
+# Precompiled headers
+target_precompile_headers(pathtracer PRIVATE "${PROJECT_SOURCE_DIR}/include/stdafx.h")
+
 # Shader dependency
 if(DXC_EXECUTABLE)
     add_dependencies(pathtracer CompileShaders)
@@ -322,6 +325,9 @@ if(MSVC)
 
     # Linker flags
     target_link_options(pathtracer PRIVATE
+        # Windows subsystem (for WinMain entry point)
+        /SUBSYSTEM:WINDOWS
+
         # Release link-time optimizations
         $<$<CONFIG:Release>:/LTCG>
         $<$<CONFIG:Release>:/OPT:REF>
@@ -381,6 +387,9 @@ if(BUILD_BENCHMARKS)
         ${LIB_SOURCES}
     )
 
+    # Precompiled headers
+    target_precompile_headers(pathtracer-benchmark PRIVATE "${PROJECT_SOURCE_DIR}/include/stdafx.h")
+
     target_include_directories(pathtracer-benchmark
         PRIVATE
             "${PROJECT_SOURCE_DIR}/include"
@@ -432,6 +441,9 @@ if(BUILD_TESTS AND GTest_FOUND)
         ${TEST_SOURCES}
         ${LIB_SOURCES}
     )
+
+    # Precompiled headers
+    target_precompile_headers(pathtracer-tests PRIVATE "${PROJECT_SOURCE_DIR}/include/stdafx.h")
 
     target_include_directories(pathtracer-tests
         PRIVATE
