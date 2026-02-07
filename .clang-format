@@ -10,7 +10,7 @@ UseTab: Never
 ContinuationIndentWidth: 4
 
 # Line length
-ColumnLimit: 120
+ColumnLimit: 80
 
 # Braces - Allman style (braces on new line)
 BreakBeforeBraces: Allman
@@ -43,16 +43,22 @@ AlignTrailingComments: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
 
-# Include sorting
+# Includes - IMPORTANT: Keep stdafx.h/pch at top
 SortIncludes: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  # Project headers
-  - Regex:           '^".*'
+  # Priority 0: Precompiled headers (stdafx.h, pch.h) - always first
+  - Regex:           '^"stdafx\.h"$'
+    Priority:        0
+  # Priority 1: Main module header (matching .cpp file)
+  - Regex:           '^".*\.h"$'
     Priority:        1
   # Windows/DirectX headers
   - Regex:           '^<(windows|d3d|dxgi)'
     Priority:        2
-  # C++ standard library
-  - Regex:           '^<.*'
+  # Priority 2: Project headers
+  - Regex:           '^".*"$'
     Priority:        3
+  # Priority 3: System headers
+  - Regex:           '^<.*>$'
+    Priority:        4
