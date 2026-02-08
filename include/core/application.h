@@ -16,78 +16,74 @@ class SwapChain;
 
 namespace pathtracer
 {
-/**
- * @brief Main application class - handles initialization, main loop, and
- * shutdown
- *
- * Responsibilities:
- * - Create and manage window
- * - Initialize DX12 device and swap chain
- * - Run main application loop
- * - Handle cleanup on exit
- * - Propagate exceptions with meaningful messages
- *
- * Usage:
- *   Application app(1920, 1080, "My Path Tracer");
- *   return app.Run();
- */
 class Application
 {
   public:
+    /// <summary>
+    /// Main application class - handles initialization, main loop, and shutdown
+    /// <para></para>
+    /// Responsibilities:
+    /// <para>- Create and manage window</para>
+    /// <para>- Initialize DX12 device and swap chain</para>
+    /// <para>- Run main application loop</para>
+    /// <para>- Handle cleanup on exit</para>
+    /// <para>- Propagate exceptions with meaningful messages</para>
+    /// </summary>
     Application(const UINT width = 960, const UINT height = 540,
                 LPCTSTR window_title = TEXT("DX12 Path Tracer"));
     ~Application();
 
     // Disable copy/move
+
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 
-    /**
-     * @brief Run the application main loop
-     * @return Exit code (0 for success)
-     *
-     * Main loop structure:
-     * - Process Windows messages
-     * - Update scene/camera
-     * - Render frame
-     * - Present to swap chain
-     * - Repeat until quit
-     */
+    /// <summary>
+    /// Run the application main loop
+    /// <para></para>
+    /// Main loop structure:
+    /// <para>- Process Windows messages</para>
+    /// <para>- Update scene/camera</para>
+    /// <para>- Render frame</para>
+    /// <para>- Present to swap chain</para>
+    /// <para>- Repeat until quit</para>
+    /// </summary>
+    /// <returns>Exit code (0 for success)</returns>
     auto Run() -> int;
 
   private:
-    /**
-     * @brief Initialize all subsystems
-     * - Create window
-     * - Initialize DX12 device
-     * - Create swap chain
-     * - Set up rendering resources
-     */
+    /// <summary>
+    /// Initialize all subsystems
+    /// <para>- Create window</para>
+    /// <para>- Initialize DX12 device</para>
+    /// <para>- Create swap chain</para>
+    /// <para>- Set up rendering resources</para>
+    /// </summary>
     auto Initialize() -> void;
 
-    /**
-     * @brief Main render loop iteration
-     * - Update frame state
-     * - Record commands
-     * - Execute rendering
-     * - Present frame
-     */
+    /// <summary>
+    /// Main render loop iteration
+    /// <para>- Update frame state</para>
+    /// <para>- Record commands</para>
+    /// <para>- Execute rendering</para>
+    /// <para>- Present frame</para>
+    /// </summary>
     auto Tick() -> void;
 
-    /**
-     * @brief Clean shutdown of all resources
-     * - Wait for GPU to finish
-     * - Release all COM objects
-     * - Destroy window
-     */
+    /// <summary>
+    /// Clean shutdown of all resources
+    /// <para>- Wait for GPU to finish</para>
+    /// <para>- Release all COM objects</para>
+    /// <para>- Destroy window</para>
+    /// </summary>
     auto Shutdown() -> void;
 
-    /**
-     * @brief Handle window resize events
-     * - Resize swap chain buffers
-     * - Update viewport
-     * - Recreate render targets
-     */
+    /// <summary>
+    /// Handle window resize events
+    /// <para>- Resize swap chain buffers</para>
+    /// <para>- Update viewport</para>
+    /// <para>- Recreate render targets</para>
+    /// </summary>
     auto OnResize(UINT width, UINT height) -> void;
 
   private:

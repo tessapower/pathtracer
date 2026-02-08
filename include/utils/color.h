@@ -6,13 +6,12 @@
 
 using color = glm::vec3;
 
-/**
- * @brief Write a color to an output stream in PPM format.
- * @param image The image vector to write to.
- * @param idx The starting index in the image vector to write the color.
- * @param pixel_color The color to write (expects RGB components in [0,1]
- * range using color.r, color.g, and color.b members).
- */
+/// <summary>
+/// Write a color to an output stream in PPM format.
+/// </summary>
+/// <param name="image">The image vector to write to.</param>
+/// <param name="idx">The starting index in the image vector to write the color.</param>
+/// <param name="pixel_color">The color to write (expects RGB components in [0,1] range using color.r, color.g, and color.b members).</param>
 auto write_color(std::vector<unsigned char>& image, int idx,
                  const color& pixel_color) -> void
 {

@@ -7,12 +7,12 @@
 
 namespace pathtracer
 {
-/**
- * @brief Win32 window wrapper
- *
- * Encapsulates Win32 window creation and message handling.
- * Provides callbacks for resize, input, and other events.
- */
+/// <summary>
+/// Win32 window wrapper
+/// <para></para>
+/// Encapsulates Win32 window creation and message handling.
+/// Provides callbacks for resize, input, and other events.
+/// </summary>
 class Window
 {
   public:
@@ -25,47 +25,47 @@ class Window
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
 
-    /**
-     * @brief Process Windows messages (non-blocking)
-     * @return false if WM_QUIT received, true otherwise
-     */
+    /// <summary>
+    /// Process Windows messages (non-blocking)
+    /// </summary>
+    /// <returns>false if WM_QUIT received, true otherwise</returns>
     auto ProcessMessages() -> bool;
 
-    /**
-     * @brief Returns the window handle for DX12 swap chain creation
-     */
+    /// <summary>
+    /// Returns the window handle for DX12 swap chain creation
+    /// </summary>
     auto GetHandle() const -> HWND
     {
         return m_hwnd;
     }
 
-    /**
-     * @brief Returns the current window width
-     */
+    /// <summary>
+    /// Returns the current window width
+    /// </summary>
     auto GetWidth() const -> UINT
     {
         return m_width;
     }
 
-    /**
-     * @brief Returns the current window height
-     */
+    /// <summary>
+    /// Returns the current window height
+    /// </summary>
     auto GetHeight() const -> UINT
     {
         return m_height;
     }
 
-    /**
-     * @brief Set callback for window resize events
-     */
+    /// <summary>
+    /// Set callback for window resize events
+    /// </summary>
     auto SetResizeCallback(ResizeCallback callback) -> void
     {
         m_resizeCallback = callback;
     }
 
-    /**
-     * @brief Show the window
-     */
+    /// <summary>
+    /// Show the window
+    /// </summary>
     auto Show() -> void;
 
   private:
