@@ -73,7 +73,8 @@ Window::Window(UINT width, UINT height, LPCTSTR title)
     }
 
     // Note: title is LPCTSTR (wide string when UNICODE is defined)
-    // For console output, we'd need conversion, so using OutputDebugString instead
+    // For console output, we'd need conversion, so using OutputDebugString
+    // instead
     OutputDebugString(TEXT("Window created\n"));
 }
 
@@ -85,7 +86,7 @@ Window::~Window()
         DestroyWindow(m_hwnd);
         UnregisterClass(m_className, m_hinstance);
     }
-    std::cout << "Window destroyed\n";
+    OutputDebugString(TEXT("Window destroyed\n"));
 }
 
 bool Window::ProcessMessages()
@@ -104,8 +105,9 @@ bool Window::ProcessMessages()
     return true;
 }
 
-void Window::Show()
+void Window::Show() const
 {
+    // TODO: handle ShowWindow failure (returns 0 on failure)
     ShowWindow(m_hwnd, SW_SHOWDEFAULT);
     UpdateWindow(m_hwnd);
 }

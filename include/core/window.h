@@ -66,7 +66,7 @@ class Window
     /// <summary>
     /// Show the window
     /// </summary>
-    auto Show() -> void;
+    auto Show() const -> void;
 
   private:
     static auto WINAPI HandleMsgSetup(HWND hwnd, UINT uMsg, WPARAM wParam,

@@ -19,8 +19,7 @@ Application::Application(const UINT width, const UINT height,
 
 Application::~Application()
 {
-    // TODO: Call Shutdown()
-    std::cout << "Application destroyed\n";
+    Shutdown();
 }
 
 int Application::Run()
