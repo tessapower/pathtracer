@@ -5,6 +5,7 @@
 
 #include <exception>
 #include <iostream>
+#include <string>
 
 /// <summary>
 /// Entry point for the DX12 Path Tracer application

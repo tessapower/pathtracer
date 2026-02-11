@@ -7,9 +7,7 @@
 
 namespace pathtracer
 {
-
-Application::Application(const UINT width, const UINT height,
-                         LPCTSTR title)
+Application::Application(const UINT width, const UINT height, LPCTSTR title)
 {
     m_width = width;
     m_height = height;
@@ -24,6 +22,9 @@ Application::~Application()
 
 int Application::Run()
 {
+    // Start the application loop
+    m_isRunning = true;
+
     while (m_isRunning)
     {
         if (!m_window->ProcessMessages())
@@ -35,6 +36,7 @@ int Application::Run()
 
         Sleep(1);
     }
+
     return 0;
 }
 
@@ -58,9 +60,6 @@ void Application::Initialize()
 
     // Show the window
     m_window->Show();
-
-    // Start the application loop
-    m_isRunning = true;
 }
 
 void Application::Tick()
