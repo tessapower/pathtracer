@@ -3,6 +3,7 @@
 
 #include "platform/windows_fwd.h"
 
+#include <chrono>
 #include <memory>
 
 // Forward declarations
@@ -93,6 +94,13 @@ class Application
     UINT m_width = 0;
     UINT m_height = 0;
     LPCTSTR m_title;
+
+    // Performance tracking
+    std::chrono::high_resolution_clock::time_point m_lastFrameTime;
+    double m_deltaTime = 0.0;
+    double m_fps = 0.0;
+    UINT m_frameCount = 0;
+    double m_fpsUpdateTimer = 0.0;
 };
 
 } // namespace pathtracer

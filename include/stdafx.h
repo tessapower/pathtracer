@@ -50,6 +50,7 @@
 #define STRICT
 
 #include <Windows.h>
+#include <tchar.h>
 
 #endif  // STDAFX_H
 

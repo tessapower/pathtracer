@@ -67,6 +67,14 @@ class Window
     /// </summary>
     auto Show() const -> void;
 
+    /// <summary>
+    /// Set the window title
+    /// </summary>
+    auto SetTitle(LPCTSTR title) -> void
+    {
+        SetWindowText(m_hwnd, title);
+    }
+
   private:
     static auto WINAPI HandleMsgSetup(HWND hwnd, UINT uMsg, WPARAM wParam,
                                       LPARAM lParam) noexcept -> LRESULT;

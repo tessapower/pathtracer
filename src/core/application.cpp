@@ -60,11 +60,37 @@ void Application::Initialize()
 
     // Show the window
     m_window->Show();
+
+    // Initialize performance tracking
+    m_lastFrameTime = std::chrono::high_resolution_clock::now();
 }
 
 void Application::Tick()
 {
-    // TODO: Update game state
+    // Calculate delta time
+    auto now = std::chrono::high_resolution_clock::now();
+    m_deltaTime =
+        std::chrono::duration<double, std::milli>(now - m_lastFrameTime).count();
+    m_lastFrameTime = now;
+
+    // Update frame count
+    m_frameCount++;
+    m_fpsUpdateTimer += m_deltaTime;
+
+    // Update FPS every second
+    if (m_fpsUpdateTimer >= 1000.0)
+    {
+        m_fps = m_frameCount / (m_fpsUpdateTimer / 1000.0);
+        m_frameCount = 0;
+        m_fpsUpdateTimer = 0.0;
+
+        // Update window title with FPS and frame time
+        TCHAR titleBuffer[256];
+        _stprintf_s(titleBuffer, TEXT("DX12 Path Tracer | FPS: %.1f | Frame Time: %.2f ms"),
+                    m_fps, 1000.0 / m_fps);
+        m_window->SetTitle(titleBuffer);
+    }
+
     m_renderer->RenderFrame();
 }
 
