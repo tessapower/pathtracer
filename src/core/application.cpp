@@ -1,7 +1,9 @@
 #include "stdafx.h"
 
 #include "core/application.h"
+#include "core/dx12_device.h"
 #include "core/window.h"
+#include "rendering/renderer.h"
 
 namespace pathtracer
 {
@@ -41,13 +43,18 @@ void Application::Initialize()
     // Create window
     m_window = std::make_unique<Window>(m_width, m_height, m_title);
 
+    // Create D3D12 device
+    m_device = std::make_unique<DX12Device>();
+
+    // Create renderer
+    m_renderer = std::make_unique<Renderer>(
+        m_device->GetDevice(), m_device->GetFactory(),
+        m_device->GetCommandQueue(), m_window->GetHandle(),
+        m_window->GetWidth(), m_window->GetHeight());
+
     // Set resize callback
     m_window->SetResizeCallback([this](UINT width, UINT height)
                                 { OnResize(width, height); });
-
-    // TODO: Initialize DX12 device
-    // TODO: Create swap chain
-    // TODO: Set up initial rendering resources
 
     // Show the window
     m_window->Show();
@@ -59,9 +66,7 @@ void Application::Initialize()
 void Application::Tick()
 {
     // TODO: Update game state
-    // TODO: Record render commands
-    // TODO: Execute commands
-    // TODO: Present frame
+    m_renderer->RenderFrame();
 }
 
 void Application::Shutdown()
@@ -75,10 +80,7 @@ void Application::OnResize(UINT width, UINT height)
 {
     m_width = width;
     m_height = height;
-
-    // TODO: Resize swap chain
-    // TODO: Update viewport
-    // TODO: Recreate size-dependent resources
+    m_renderer->OnResize(m_width, m_height);
 }
 
 } // namespace pathtracer
