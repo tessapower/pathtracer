@@ -3,7 +3,6 @@
 #include "platform/windows_fwd.h"
 
 #include <functional>
-#include <string>
 
 namespace pathtracer
 {

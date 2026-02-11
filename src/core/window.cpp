@@ -2,8 +2,7 @@
 
 #include "core/window.h"
 
-#include <cassert>
-#include <iostream>
+#include <stdexcept>
 #include <string>
 
 namespace pathtracer
