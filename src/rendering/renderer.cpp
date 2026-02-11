@@ -1,7 +1,9 @@
 #include "stdafx.h"
 
+#include "core/dx12_info_queue.h"
 #include "rendering/renderer.h"
 #include "utils/d3dx12.h"
+#include "utils/exception_macros.h"
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -12,9 +14,9 @@
 namespace pathtracer
 {
 Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
-                   ID3D12CommandQueue* commandQueue, HWND hwnd, UINT width,
-                   UINT height)
-    : m_device(device), m_commandQueue(commandQueue)
+                   ID3D12CommandQueue* commandQueue, DX12InfoQueue* infoQueue,
+                   HWND hwnd, UINT width, UINT height)
+    : m_device(device), m_commandQueue(commandQueue), m_infoQueue(infoQueue)
 {
     // Create RTV descriptor heap
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
@@ -22,7 +24,19 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-    m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap));
+#ifdef _DEBUG
+    if (m_infoQueue)
+    {
+        DX12_CHECK_MSG(m_device->CreateDescriptorHeap(&rtvHeapDesc,
+                                                      IID_PPV_ARGS(&m_rtvHeap)),
+                       *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_device->CreateDescriptorHeap(&rtvHeapDesc,
+                                                  IID_PPV_ARGS(&m_rtvHeap)));
+    }
 
     m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(
         D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -34,35 +48,74 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
     // Create one command allocator per back buffer
     for (auto i = 0; i < SwapChain::BufferCount; ++i)
     {
-        if (FAILED(m_device->CreateCommandAllocator(
-                D3D12_COMMAND_LIST_TYPE_DIRECT,
-                IID_PPV_ARGS(&m_commandAllocators[i]))))
+#ifdef _DEBUG
+        if (m_infoQueue)
         {
-            throw std::runtime_error("Failed to create command allocator");
+            DX12_CHECK_MSG(m_device->CreateCommandAllocator(
+                               D3D12_COMMAND_LIST_TYPE_DIRECT,
+                               IID_PPV_ARGS(&m_commandAllocators[i])),
+                           *m_infoQueue);
+        }
+        else
+#endif // _DEBUG
+        {
+            DX12_CHECK(m_device->CreateCommandAllocator(
+                D3D12_COMMAND_LIST_TYPE_DIRECT,
+                IID_PPV_ARGS(&m_commandAllocators[i])));
         }
     }
 
     // Create command list
-    if (FAILED(m_device->CreateCommandList(
-            0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocators[0].Get(),
-            nullptr, IID_PPV_ARGS(&m_commandList))))
+
+#ifdef _DEBUG
+    if (m_infoQueue)
     {
-        throw std::runtime_error("Failed to create command list");
+        DX12_CHECK_MSG(
+            m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
+                                        m_commandAllocators[0].Get(), nullptr,
+                                        IID_PPV_ARGS(&m_commandList)),
+            *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_device->CreateCommandList(
+            0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocators[0].Get(),
+            nullptr, IID_PPV_ARGS(&m_commandList)));
     }
 
-    m_commandList->Close();
+    // Close command list
+#ifdef _DEBUG
+    if (m_infoQueue)
+    {
+        DX12_CHECK_MSG(m_commandList->Close(), *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_commandList->Close());
+    }
 
     // Create fence
-    if (FAILED(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE,
-                                     IID_PPV_ARGS(&m_fence))))
+#ifdef _DEBUG
+    if (m_infoQueue)
     {
-        throw std::runtime_error("Failed to create fence");
+        DX12_CHECK_MSG(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE,
+                                             IID_PPV_ARGS(&m_fence)),
+                       *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE,
+                                         IID_PPV_ARGS(&m_fence)));
     }
 
     // Create fence event
     m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-    if (m_fenceEvent == nullptr)
+    if (!m_fenceEvent)
     {
+        // TODO: replace with pathtracer error handling
         throw std::runtime_error("Failed to create fence event");
     }
 
@@ -80,10 +133,32 @@ auto Renderer::RenderFrame() -> void
     const UINT frameIdx = m_swapChain->GetCurrentBackBufferIndex();
 
     // Reset command allocator
-    m_commandAllocators[frameIdx]->Reset();
+#ifdef _DEBUG
+    if (m_infoQueue)
+    {
+        DX12_CHECK_MSG(m_commandAllocators[frameIdx]->Reset(), *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_commandAllocators[frameIdx]->Reset());
+    }
 
     // Reset command list
-    m_commandList->Reset(m_commandAllocators[frameIdx].Get(), nullptr);
+
+#ifdef _DEBUG
+    if (m_infoQueue)
+    {
+        DX12_CHECK_MSG(
+            m_commandList->Reset(m_commandAllocators[frameIdx].Get(), nullptr),
+            *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(
+            m_commandList->Reset(m_commandAllocators[frameIdx].Get(), nullptr));
+    }
 
     // Get back buffer
     ID3D12Resource* backBuffer = m_swapChain->GetCurrentBackBuffer();
@@ -111,7 +186,16 @@ auto Renderer::RenderFrame() -> void
     m_commandList->ResourceBarrier(1, &barrier);
 
     // Close command list
-    m_commandList->Close();
+#ifdef _DEBUG
+    if (m_infoQueue)
+    {
+        DX12_CHECK_MSG(m_commandList->Close(), *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_commandList->Close());
+    }
 
     // Execute command list
     ID3D12CommandList* commandLists[] = {m_commandList.Get()};
@@ -122,7 +206,18 @@ auto Renderer::RenderFrame() -> void
 
     // Signal the fence
     const UINT64 currentFenceValue = m_fenceValues[frameIdx];
-    m_commandQueue->Signal(m_fence.Get(), currentFenceValue);
+
+#ifdef _DEBUG
+    if (m_infoQueue)
+    {
+        DX12_CHECK_MSG(m_commandQueue->Signal(m_fence.Get(), currentFenceValue),
+                       *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_commandQueue->Signal(m_fence.Get(), currentFenceValue));
+    }
 
     // Wait for previous frame
     const UINT nextFrameIdx = m_swapChain->GetCurrentBackBufferIndex();
@@ -155,14 +250,28 @@ auto Renderer::WaitForGpu() -> void
     const UINT64 fenceValue =
         m_fenceValues[m_swapChain->GetCurrentBackBufferIndex()];
 
-    if (FAILED(m_commandQueue->Signal(m_fence.Get(), fenceValue)))
+#ifdef _DEBUG
+    if (m_infoQueue)
     {
-        throw std::runtime_error("Failed to signal fence");
+        DX12_CHECK_MSG(m_commandQueue->Signal(m_fence.Get(), fenceValue),
+                       *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_commandQueue->Signal(m_fence.Get(), fenceValue));
     }
 
-    if (FAILED(m_fence->SetEventOnCompletion(fenceValue, m_fenceEvent)))
+#ifdef _DEBUG
+    if (m_infoQueue)
     {
-        throw std::runtime_error("Failed to set on completion event");
+        DX12_CHECK_MSG(m_fence->SetEventOnCompletion(fenceValue, m_fenceEvent),
+                       *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_fence->SetEventOnCompletion(fenceValue, m_fenceEvent));
     }
 
     WaitForSingleObject(m_fenceEvent, INFINITE);

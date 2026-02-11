@@ -51,8 +51,8 @@ void Application::Initialize()
     // Create renderer
     m_renderer = std::make_unique<Renderer>(
         m_device->GetDevice(), m_device->GetFactory(),
-        m_device->GetCommandQueue(), m_window->GetHandle(),
-        m_window->GetWidth(), m_window->GetHeight());
+        m_device->GetCommandQueue(), m_device->GetInfoQueue(),
+        m_window->GetHandle(), m_window->GetWidth(), m_window->GetHeight());
 
     // Set resize callback
     m_window->SetResizeCallback([this](UINT width, UINT height)
