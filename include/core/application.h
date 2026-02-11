@@ -4,7 +4,6 @@
 #include "platform/windows_fwd.h"
 
 #include <memory>
-#include <string>
 
 // Forward declarations
 namespace pathtracer

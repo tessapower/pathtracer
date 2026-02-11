@@ -3,8 +3,6 @@
 #include "core/application.h"
 #include "core/window.h"
 
-#include <iostream>
-
 namespace pathtracer
 {
 
@@ -33,9 +31,7 @@ int Application::Run()
         }
         Tick();
 
-        // Optional: Prevent 100% CPU usage when idle
-        // Remove this once you have a proper render loop
-        Sleep(1); // or use VSync with Present
+        Sleep(1);
     }
     return 0;
 }

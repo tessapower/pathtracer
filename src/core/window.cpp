@@ -225,7 +225,8 @@ void Window::OnResize(int width, int height)
     m_width = width;
     m_height = height;
 
-    // Call resize callback if set
+    // Call resize callback if set, this is where the app can pass on to
+    // the renderer to resize buffers, etc.
     if (m_resizeCallback)
     {
         m_resizeCallback(width, height);
