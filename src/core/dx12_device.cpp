@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
-#include <core/dx12_device.h>
+#include "core/dx12_device.h"
+#include "utils/exception_macros.h"
 
 // DX12 headers
 #include <d3d12.h>
@@ -10,7 +11,8 @@
 
 namespace pathtracer
 {
-DX12Device::DX12Device() {
+DX12Device::DX12Device()
+{
     LoadPipeline();
 }
 
@@ -44,11 +46,8 @@ auto DX12Device::LoadPipeline() -> void
 #ifdef _DEBUG
     createFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
-    if (FAILED(
-            CreateDXGIFactory2(createFactoryFlags, IID_PPV_ARGS(&m_factory))))
-    {
-        throw std::runtime_error("Failed to create DXGI Factory");
-    }
+    DX12_CHECK(
+        CreateDXGIFactory2(createFactoryFlags, IID_PPV_ARGS(&m_factory)));
 
     // Enumerate Adapters (find best GPU)
     if (FAILED(m_factory->EnumAdapterByGpuPreference(
@@ -59,11 +58,8 @@ auto DX12Device::LoadPipeline() -> void
     }
 
     // Create device
-    if (FAILED(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_12_1,
-                                 IID_PPV_ARGS(&m_device))))
-    {
-        throw std::runtime_error("Failed to create D3D12 device");
-    }
+    DX12_CHECK(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_12_1,
+                                 IID_PPV_ARGS(&m_device)));
 
     // Create info queue (after device exists)
 #ifdef _DEBUG
@@ -98,11 +94,8 @@ auto DX12Device::LoadPipeline() -> void
     queueDesc.NodeMask = 0;
 
     // Create command queue
-    if (FAILED(m_device->CreateCommandQueue(&queueDesc,
-                                            IID_PPV_ARGS(&m_commandQueue))))
-    {
-        throw std::runtime_error("Failed to create command queue");
-    }
+    DX12_CHECK(m_device->CreateCommandQueue(&queueDesc,
+                                            IID_PPV_ARGS(&m_commandQueue)));
 }
 
 } // namespace pathtracer
