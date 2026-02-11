@@ -235,10 +235,16 @@ void Window::OnResize(int width, int height)
 
 void Window::OnKeyDown(int key)
 {
-    UNREFERENCED_PARAMETER(key);
-    OutputDebugString(TEXT("Key down\n"));
-    // TODO: Handle key presses
-    // ESC to quit?
+    switch (key)
+    {
+    case VK_ESCAPE:
+        PostQuitMessage(0);
+        break;
+
+    default:
+        break;
+    }
+
     // WASD for camera movement?
 }
 
