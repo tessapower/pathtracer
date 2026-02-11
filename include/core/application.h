@@ -10,7 +10,7 @@ namespace pathtracer
 {
 class Window;
 class DX12Device;
-class SwapChain;
+class Renderer;
 } // namespace pathtracer
 
 namespace pathtracer
@@ -87,8 +87,8 @@ class Application
 
   private:
     std::unique_ptr<Window> m_window;
-    // std::unique_ptr<DX12Device> m_device;
-    // std::unique_ptr<SwapChain> m_swapChain;
+    std::unique_ptr<DX12Device> m_device;
+    std::unique_ptr<Renderer> m_renderer;
     bool m_isRunning = false;
     UINT m_width = 0;
     UINT m_height = 0;
