@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "core/swap_chain.h"
+#include "utils/exception_macros.h"
 #include "utils/string_utils.h"
 
 #include <iostream>
@@ -9,9 +10,10 @@ namespace pathtracer
 {
 
 SwapChain::SwapChain(ID3D12Device* device, IDXGIFactory4* factory,
-                     ID3D12CommandQueue* commandQueue, HWND hwnd, UINT width,
+                     ID3D12CommandQueue* commandQueue,
+                     DX12InfoQueue* infoQueue, HWND hwnd, UINT width,
                      UINT height)
-    : m_device(device), m_width(width), m_height(height)
+    : m_device(device), m_infoQueue(infoQueue), m_width(width), m_height(height)
 {
     // Create swap chain description
     DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
@@ -32,25 +34,52 @@ SwapChain::SwapChain(ID3D12Device* device, IDXGIFactory4* factory,
 
     // Create swap chain
     Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
-    if (FAILED(factory->CreateSwapChainForHwnd(
-        commandQueue, hwnd, &swapChainDesc,
-        nullptr, // Fullscreen descriptor (nullptr = windowed)
-        nullptr, // Restrict output (nullptr = default)
-        &swapChain1)))
+
+#ifdef _DEBUG
+    if (m_infoQueue)
     {
-        throw std::runtime_error("Failed to create swap chain");
+        DX12_CHECK_MSG(
+            factory->CreateSwapChainForHwnd(
+                commandQueue, hwnd, &swapChainDesc,
+                nullptr, // Fullscreen descriptor (nullptr = windowed)
+                nullptr, // Restrict output (nullptr = default)
+                &swapChain1),
+            *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(factory->CreateSwapChainForHwnd(
+            commandQueue, hwnd, &swapChainDesc,
+            nullptr, // Fullscreen descriptor (nullptr = windowed)
+            nullptr, // Restrict output (nullptr = default)
+            &swapChain1));
     }
 
     // Upgrade to IDXGISwapChain4
-    if (FAILED(swapChain1.As(&m_swapChain)))
+#ifdef _DEBUG
+    if (m_infoQueue)
     {
-        throw std::runtime_error("Failed to upgrade swap chain to IDXGISwapChain4");
+        DX12_CHECK_MSG(swapChain1.As(&m_swapChain), *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(swapChain1.As(&m_swapChain));
     }
 
     // Disable Alt+Enter fullscreen toggle (handle it manually if needed)
-    if (FAILED(factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER)))
+#ifdef _DEBUG
+    if (m_infoQueue)
     {
-        throw std::runtime_error("Failed to disable Alt+Enter fullscreen toggle");
+        DX12_CHECK_MSG(
+            factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER),
+            *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER));
     }
 
     // Create render target views for back buffers
@@ -72,7 +101,18 @@ void SwapChain::Present(bool vsync)
     UINT syncInterval = vsync ? 1 : 0;
     // Can't use tearing with vsync enabled
     UINT presentFlags = vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING;
-    m_swapChain->Present(syncInterval, presentFlags);
+
+#ifdef _DEBUG
+    if (m_infoQueue)
+    {
+        DX12_CHECK_MSG(m_swapChain->Present(syncInterval, presentFlags),
+                       *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_swapChain->Present(syncInterval, presentFlags));
+    }
 }
 
 void SwapChain::Resize(int width, int height)
@@ -80,14 +120,23 @@ void SwapChain::Resize(int width, int height)
     ReleaseRenderTargets();
 
     // Resize with tearing support
-    HRESULT hr = m_swapChain->ResizeBuffers(
-        BufferCount, width, height, DXGI_FORMAT_R16G16B16A16_FLOAT,
-        DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING // Maintain tearing support
-    );
-
-    if (FAILED(hr))
+#ifdef _DEBUG
+    if (m_infoQueue)
     {
-        throw std::runtime_error("Failed to resize swap chain buffers");
+        DX12_CHECK_MSG(
+            m_swapChain->ResizeBuffers(
+                BufferCount, width, height, DXGI_FORMAT_R16G16B16A16_FLOAT,
+                DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING // Maintain tearing support
+                ),
+            *m_infoQueue);
+    }
+    else
+#endif // _DEBUG
+    {
+        DX12_CHECK(m_swapChain->ResizeBuffers(
+            BufferCount, width, height, DXGI_FORMAT_R16G16B16A16_FLOAT,
+            DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING // Maintain tearing support
+            ));
     }
 
     // Update dimensions
@@ -116,9 +165,18 @@ void SwapChain::RetrieveBackBuffers()
     m_backBuffers.resize(BufferCount);
     for (UINT i = 0; i < BufferCount; ++i)
     {
-        if (FAILED(m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_backBuffers[i]))))
+#ifdef _DEBUG
+        if (m_infoQueue)
         {
-            throw std::runtime_error("Failed to get back buffer from swap chain");
+            DX12_CHECK_MSG(
+                m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_backBuffers[i])),
+                *m_infoQueue);
+        }
+        else
+#endif // _DEBUG
+        {
+            DX12_CHECK(
+                m_swapChain->GetBuffer(i, IID_PPV_ARGS(&m_backBuffers[i])));
         }
     }
 }

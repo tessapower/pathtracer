@@ -43,7 +43,7 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
 
     // Create swapchain
     m_swapChain = std::make_unique<SwapChain>(device, factory, commandQueue,
-                                              hwnd, width, height);
+                                              infoQueue, hwnd, width, height);
 
     // Create one command allocator per back buffer
     for (auto i = 0; i < SwapChain::BufferCount; ++i)
