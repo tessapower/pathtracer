@@ -1,9 +1,12 @@
 #ifndef DX12_DEVICE_H
 #define DX12_DEVICE_H
 
+#include "core/dx12_info_queue.h"
+
 #include <d3d12.h>
 #include <dxgi1_6.h>
 
+#include <memory>
 #include <wrl.h>
 
 namespace pathtracer
@@ -44,6 +47,10 @@ class DX12Device
         return m_adapter.Get();
     }
 
+    auto GetInfoQueue() const -> DX12InfoQueue* {
+        return m_infoQueue.get();
+    }
+
   private:
     /// <summary>
     /// Loads the rendering pipeline.
@@ -54,6 +61,7 @@ class DX12Device
     Microsoft::WRL::ComPtr<IDXGIFactory6> m_factory;
     Microsoft::WRL::ComPtr<IDXGIAdapter1> m_adapter;
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
+    std::unique_ptr<DX12InfoQueue> m_infoQueue;
 };
 
 #endif // DX12_DEVICE_H

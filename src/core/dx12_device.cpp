@@ -17,7 +17,7 @@ DX12Device::DX12Device() {
 auto DX12Device::LoadPipeline() -> void
 {
 // Enable the debug layer
-#if defined(_DEBUG)
+#ifdef _DEBUG
     {
         Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
 
@@ -41,7 +41,7 @@ auto DX12Device::LoadPipeline() -> void
 
     // Create Factory
     UINT createFactoryFlags = 0;
-#if defined(_DEBUG)
+#ifdef _DEBUG
     createFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 #endif
     if (FAILED(
@@ -64,6 +64,11 @@ auto DX12Device::LoadPipeline() -> void
     {
         throw std::runtime_error("Failed to create D3D12 device");
     }
+
+    // Create info queue (after device exists)
+#ifdef _DEBUG
+    m_infoQueue = std::make_unique<DX12InfoQueue>(m_device.Get());
+#endif
 
     // TODO: Try 12_1, fallback to 12_0
     /*
