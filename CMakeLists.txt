@@ -9,7 +9,7 @@ project(pathtracer
 # Project Options
 #########################################################
 option(BUILD_TESTS "Build unit tests" ON)
-option(BUILD_BENCHMARKS "Build benchmark suite" ON)
+option(BUILD_BENCHMARKS "Build benchmark suite" OFF)  # Disabled for now
 option(ENABLE_PIX "Enable PIX profiling markers" ON)
 option(ENABLE_ASAN "Enable Address Sanitizer" OFF)
 
@@ -48,8 +48,20 @@ endif()
 #########################################################
 # Find Dependencies
 #########################################################
-find_package(Stb REQUIRED)
-find_package(glm CONFIG REQUIRED)
+# Stb is only needed for texture loading (Phase 10)
+find_package(Stb QUIET)
+if(Stb_FOUND)
+    message(STATUS "Stb found - texture loading enabled")
+else()
+    message(STATUS "Stb not found - texture loading disabled (not needed yet)")
+endif()
+
+find_package(glm CONFIG QUIET)
+if(glm_FOUND)
+    message(STATUS "glm found - vector/matrix math enabled")
+else()
+    message(STATUS "glm not found - vector/matrix math disabled (not needed yet)")
+endif()
 
 # Optional: PIX for profiling
 if(ENABLE_PIX)
@@ -226,7 +238,7 @@ endif()
 target_include_directories(pathtracer
     PRIVATE
         "${PROJECT_SOURCE_DIR}/include"
-        ${Stb_INCLUDE_DIR}
+        $<$<BOOL:${Stb_FOUND}>:${Stb_INCLUDE_DIR}>
 )
 
 #########################################################
@@ -234,14 +246,17 @@ target_include_directories(pathtracer
 #########################################################
 target_link_libraries(pathtracer
     PRIVATE
-        glm::glm-header-only
-
         # DirectX 12 libraries
         d3d12.lib
         dxgi.lib
         dxguid.lib
         d3dcompiler.lib
 )
+
+# Optional dependencies
+if(glm_FOUND)
+    target_link_libraries(pathtracer PRIVATE glm::glm-header-only)
+endif()
 
 # PIX Event Runtime
 if(ENABLE_PIX AND WinPixEventRuntime_FOUND)
@@ -279,7 +294,11 @@ if(MSVC)
         # Warning level
         /W4
 
-        # Treat warnings as errors (except in external headers)
+        # External header warnings (Windows SDK, WRL)
+        /external:W0                 # No warnings from external headers
+        /external:anglebrackets      # Treat #include <...> as external
+
+        # Treat warnings as errors (only for our code)
         /WX
 
         # Additional warnings
@@ -304,6 +323,7 @@ if(MSVC)
 
         # Disable specific warnings
         /wd4068  # Unknown pragma (for non-MSVC compilers)
+        /wd4265  # Class has virtual functions but non-virtual destructor (WRL headers)
 
         # Debug configuration
         $<$<CONFIG:Debug>:/Od>      # No optimization
@@ -393,17 +413,20 @@ if(BUILD_BENCHMARKS)
     target_include_directories(pathtracer-benchmark
         PRIVATE
             "${PROJECT_SOURCE_DIR}/include"
-            ${Stb_INCLUDE_DIR}
+            $<$<BOOL:${Stb_FOUND}>:${Stb_INCLUDE_DIR}>
     )
 
     target_link_libraries(pathtracer-benchmark
         PRIVATE
-            glm::glm-header-only
             d3d12.lib
             dxgi.lib
             dxguid.lib
             d3dcompiler.lib
     )
+
+    if(glm_FOUND)
+        target_link_libraries(pathtracer-benchmark PRIVATE glm::glm-header-only)
+    endif()
 
     target_compile_definitions(pathtracer-benchmark PRIVATE
         BENCHMARK_MODE=1
@@ -415,7 +438,8 @@ if(BUILD_BENCHMARKS)
 
     # Copy MSVC settings
     if(MSVC)
-        target_compile_options(pathtracer-benchmark PRIVATE /MP /W4)
+        target_compile_options(pathtracer-benchmark PRIVATE /MP /W4 /wd4265)
+        target_link_options(pathtracer-benchmark PRIVATE /SUBSYSTEM:WINDOWS)
         set_property(TARGET pathtracer-benchmark
                      PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
     endif()
@@ -448,15 +472,18 @@ if(BUILD_TESTS AND GTest_FOUND)
     target_include_directories(pathtracer-tests
         PRIVATE
             "${PROJECT_SOURCE_DIR}/include"
-            ${Stb_INCLUDE_DIR}
+            $<$<BOOL:${Stb_FOUND}>:${Stb_INCLUDE_DIR}>
     )
 
     target_link_libraries(pathtracer-tests
         PRIVATE
-            glm::glm-header-only
             GTest::gtest
             GTest::gtest_main
     )
+
+    if(glm_FOUND)
+        target_link_libraries(pathtracer-tests PRIVATE glm::glm-header-only)
+    endif()
 
     target_compile_definitions(pathtracer-tests PRIVATE
         UNICODE
