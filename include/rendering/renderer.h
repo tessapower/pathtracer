@@ -13,6 +13,11 @@
 namespace pathtracer
 {
 
+/// Renderer(Orchestrator)
+/// - Manages SwapChain, command allocators, command list, fences
+/// - Handles back buffer state transitions(PRESENT ↔ RENDER_TARGET)
+/// - Orchestrates frame rendering by calling pathtracer->Render()
+/// - Synchronizes GPU / CPU with fences
 class Renderer
 {
   public:

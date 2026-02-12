@@ -17,9 +17,12 @@ class IPathTracer
     /// Renders the scene using the path tracing algorithm. This method should
     /// be called every frame to update the render target with the latest image.
     /// </summary>
-    /// <param name="commandList">The command list to record rendering commands.</param>
-    /// <param name="RenderTarget">The render target to which the path tracer will output the image.</param>
-    /// <param name="camera">The camera defining the view for the current frame.</param>
+    /// <param name="commandList">The command list to record rendering
+    /// commands.</param>
+    /// <param name="RenderTarget">The render target to which the path tracer
+    /// will output the image.</param>
+    /// <param name="camera">The camera defining the view for the current
+    /// frame.</param>
     /// <param name="scene">The scene to be rendered.</param>
     virtual auto Render(ID3D12GraphicsCommandList* commandList,
                         ID3D12Resource* renderTarget,
