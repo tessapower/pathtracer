@@ -224,6 +224,16 @@ endif()
 #########################################################
 add_executable(pathtracer ${ALL_SOURCES} ${HEADERS})
 
+# Add shader files to target (for IDE visibility)
+if(SHADER_FILES)
+    target_sources(pathtracer PRIVATE ${SHADER_FILES})
+    # Disable automatic shader compilation by VS (we use custom DXC commands)
+    set_source_files_properties(${SHADER_FILES} PROPERTIES
+        VS_TOOL_OVERRIDE "None"
+        HEADER_FILE_ONLY TRUE
+    )
+endif()
+
 # Precompiled headers
 target_precompile_headers(pathtracer PRIVATE "${PROJECT_SOURCE_DIR}/include/stdafx.h")
 
@@ -379,6 +389,11 @@ if(MSVC)
     source_group(TREE "${PROJECT_SOURCE_DIR}/src"
                  PREFIX "Source Files"
                  FILES ${ALL_SOURCES})
+
+    # Group shader files in a "Shaders" folder in VS
+    if(SHADER_FILES)
+        source_group("Shaders" FILES ${SHADER_FILES})
+    endif()
 
     # Set startup project
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
