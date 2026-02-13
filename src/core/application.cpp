@@ -3,6 +3,8 @@
 #include "core/application.h"
 #include "core/dx12_device.h"
 #include "core/window.h"
+#include "rendering/compute_pathtracer.h"
+#include "rendering/cpu_pathtracer.h"
 #include "rendering/renderer.h"
 
 namespace pathtracer
@@ -48,10 +50,15 @@ void Application::Initialize()
     // Create D3D12 device
     m_device = std::make_unique<DX12Device>();
 
+    // Create pathtracer
+    auto pathtracer = std::make_unique<ComputePathtracer>(
+        m_device->GetDevice(), m_device->GetInfoQueue(), m_window->GetWidth(),
+        m_window->GetHeight());
+
     // Create renderer
     m_renderer = std::make_unique<Renderer>(
         m_device->GetDevice(), m_device->GetFactory(),
-        m_device->GetCommandQueue(), m_device->GetInfoQueue(),
+        m_device->GetCommandQueue(), m_device->GetInfoQueue(), std::move(pathtracer),
         m_window->GetHandle(), m_window->GetWidth(), m_window->GetHeight());
 
     // Set resize callback
