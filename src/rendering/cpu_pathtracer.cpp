@@ -14,6 +14,9 @@ auto CpuPathtracer::Render(ID3D12GraphicsCommandList* commandList,
                            ID3D12Resource* renderTarget,
                            D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle) -> void
 {
+    // Explicitly mark unused parameter to avoid warnings
+    (void)renderTarget;
+
     commandList->ClearRenderTargetView(rtvHandle, m_clearColor, 0, nullptr);
 }
 
