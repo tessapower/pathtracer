@@ -10,13 +10,17 @@
 
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 namespace pathtracer
 {
 Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
                    ID3D12CommandQueue* commandQueue, DX12InfoQueue* infoQueue,
+                   std::unique_ptr<IPathTracer> pathtracer,
                    HWND hwnd, UINT width, UINT height)
-    : m_device(device), m_commandQueue(commandQueue), m_infoQueue(infoQueue)
+    : m_device(device), m_commandQueue(commandQueue), m_infoQueue(infoQueue),
+      m_pathtracer(std::move(pathtracer)),
+      m_width(width), m_height(height)
 {
     // Create RTV descriptor heap
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
@@ -42,8 +46,7 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
         D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
     // Create swapchain
-    m_swapChain = std::make_unique<SwapChain>(device, factory, commandQueue,
-                                              infoQueue, hwnd, width, height);
+    m_swapChain = std::make_unique<SwapChain>(device, factory, commandQueue, infoQueue, hwnd, m_width, m_height);
 
     // Create one command allocator per back buffer
     for (auto i = 0; i < SwapChain::BufferCount; ++i)
@@ -128,6 +131,14 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
     CreateBackBufferRTVs();
 }
 
+Renderer::~Renderer() {
+    // Wait for GPU to finish before releasing resources
+    WaitForGpu();
+
+    // Resources will be released automatically by ComPtr destructors in
+    // reverse order of creation, so no need to manually release them here
+}
+
 auto Renderer::RenderFrame() -> void
 {
     const UINT frameIdx = m_swapChain->GetCurrentBackBufferIndex();
@@ -175,8 +186,8 @@ auto Renderer::RenderFrame() -> void
         m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), frameIdx,
         m_rtvDescriptorSize);
 
-    // Clear to background color
-    m_commandList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+    // Render with pathtracer
+    m_pathtracer->Render(m_commandList.Get(), backBuffer, rtvHandle);
 
     // Transition back to present
     barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -234,11 +245,16 @@ auto Renderer::RenderFrame() -> void
 
 auto Renderer::OnResize(const UINT width, const UINT height) -> void
 {
+    m_width = width;
+    m_height = height;
+
     // Need to idle first so we don't swap anything out while in use
     WaitForGpu();
 
     // Swapchain releases old buffers and gets new ones
-    m_swapChain->Resize(width, height);
+    m_swapChain->Resize(m_width, m_height);
+
+    m_pathtracer->Resize(m_width, m_height);
 
     // Recreate render target views for the new buffers
     CreateBackBufferRTVs();
