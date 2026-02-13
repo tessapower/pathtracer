@@ -4,6 +4,10 @@
 #include "utils/exception_macros.h"
 #include "utils/string_utils.h"
 
+#include <dxgi.h>
+#include <dxgiformat.h>
+#include <dxgi1_2.h>
+
 #include <iostream>
 
 namespace pathtracer
