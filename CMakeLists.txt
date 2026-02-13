@@ -217,6 +217,18 @@ if(DXC_EXECUTABLE)
     add_custom_target(CompileShaders ALL
         DEPENDS ${COMPILED_SHADERS}
     )
+
+    # Copy compiled shaders to output directory for each configuration
+    foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
+        add_custom_command(TARGET CompileShaders POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+                "${CMAKE_BINARY_DIR}/bin/${CONFIG}/shaders"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${COMPILED_SHADERS}
+                "${CMAKE_BINARY_DIR}/bin/${CONFIG}/shaders/"
+            COMMENT "Copying shaders to ${CONFIG} output directory"
+        )
+    endforeach()
 endif()
 
 #########################################################
