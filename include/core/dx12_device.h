@@ -47,7 +47,8 @@ class DX12Device
         return m_adapter.Get();
     }
 
-    auto GetInfoQueue() const -> DX12InfoQueue* {
+    auto GetInfoQueue() const -> DX12InfoQueue*
+    {
         return m_infoQueue.get();
     }
 

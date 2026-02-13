@@ -16,11 +16,10 @@ namespace pathtracer
 {
 Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
                    ID3D12CommandQueue* commandQueue, DX12InfoQueue* infoQueue,
-                   std::unique_ptr<IPathTracer> pathtracer,
-                   HWND hwnd, UINT width, UINT height)
+                   std::unique_ptr<IPathTracer> pathtracer, HWND hwnd,
+                   UINT width, UINT height)
     : m_device(device), m_commandQueue(commandQueue), m_infoQueue(infoQueue),
-      m_pathtracer(std::move(pathtracer)),
-      m_width(width), m_height(height)
+      m_pathtracer(std::move(pathtracer)), m_width(width), m_height(height)
 {
     // Create RTV descriptor heap
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
@@ -46,7 +45,8 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
         D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 
     // Create swapchain
-    m_swapChain = std::make_unique<SwapChain>(device, factory, commandQueue, infoQueue, hwnd, m_width, m_height);
+    m_swapChain = std::make_unique<SwapChain>(
+        device, factory, commandQueue, infoQueue, hwnd, m_width, m_height);
 
     // Create one command allocator per back buffer
     for (auto i = 0; i < SwapChain::BufferCount; ++i)
@@ -131,7 +131,8 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
     CreateBackBufferRTVs();
 }
 
-Renderer::~Renderer() {
+Renderer::~Renderer()
+{
     // Wait for GPU to finish before releasing resources
     WaitForGpu();
 
@@ -156,7 +157,6 @@ auto Renderer::RenderFrame() -> void
     }
 
     // Reset command list
-
 #ifdef _DEBUG
     if (m_infoQueue)
     {

@@ -1,7 +1,7 @@
 /******************************************************************************
-* This file comes from the Chili Direct3D Engine.                             *
-* Copyright 2018 PlanetChili <http://www.planetchili.net>                     *
-******************************************************************************/
+ * This file comes from the Chili Direct3D Engine.                            *
+ * Copyright 2018 PlanetChili <http://www.planetchili.net>                    *
+ *****************************************************************************/
 
 #ifndef STDAFX_H
 #define STDAFX_H
@@ -50,7 +50,7 @@
 #define STRICT
 
 #include <Windows.h>
+
 #include <tchar.h>
 
-#endif  // STDAFX_H
-
+#endif // STDAFX_H

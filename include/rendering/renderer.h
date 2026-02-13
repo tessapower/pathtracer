@@ -13,8 +13,7 @@
 
 namespace pathtracer
 {
-
-/// Renderer(Orchestrator)
+/// Renderer (Orchestrator)
 /// - Manages SwapChain, command allocators, command list, fences
 /// - Handles back buffer state transitions(PRESENT ↔ RENDER_TARGET)
 /// - Orchestrates frame rendering by calling pathtracer->Render()
@@ -36,24 +35,34 @@ class Renderer
     /// </summary>
     Renderer(ID3D12Device* device, IDXGIFactory4* factory,
              ID3D12CommandQueue* commandQueue, DX12InfoQueue* infoQueue,
-             std::unique_ptr<IPathTracer> pathtracer,
-             HWND hwnd, UINT width, UINT height);
+             std::unique_ptr<IPathTracer> pathtracer, HWND hwnd, UINT width,
+             UINT height);
 
     ~Renderer();
 
     /// <summary>
+    /// Renders a frame using the current pathtracer.
     /// </summary>
     auto RenderFrame(/*const Camera& camera, const Scene& scene*/) -> void;
 
     /// <summary>
+    /// Handles window resize events.
     /// </summary>
     auto OnResize(const UINT width, const UINT height) -> void;
 
     /// <summary>
+    /// Waits for the GPU to finish processing all commands.
     /// </summary>
     auto WaitForGpu() -> void;
 
     /// <summary>
+    /// Sets the pathtracer to be used by the renderer.
+    /// </summary>
+    /// <param name="pathtracer">Unique pointer to the pathtracer</param>
+    auto SetPathtracer(std::unique_ptr<IPathTracer> pathtracer) -> void;
+
+    /// <summary>
+    /// Sets the type of pathtracer to be used.
     /// </summary>
     auto SetPathtracerType(/* PathtracerType type*/) -> void;
 

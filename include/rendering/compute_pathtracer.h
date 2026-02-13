@@ -38,7 +38,6 @@ class ComputePathtracer : public IPathTracer
     /// </summary>
     auto Resize(const UINT width, const UINT height) -> void override;
 
-
     /// <summary>
     /// Returns the name of the path tracer for display in the UI.
     /// </summary>

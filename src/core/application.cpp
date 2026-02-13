@@ -77,7 +77,8 @@ void Application::Tick()
     // Calculate delta time
     auto now = std::chrono::high_resolution_clock::now();
     m_deltaTime =
-        std::chrono::duration<double, std::milli>(now - m_lastFrameTime).count();
+        std::chrono::duration<double, std::milli>(now - m_lastFrameTime)
+            .count();
     m_lastFrameTime = now;
 
     // Update frame count
@@ -93,7 +94,8 @@ void Application::Tick()
 
         // Update window title with FPS and frame time
         TCHAR titleBuffer[256];
-        _stprintf_s(titleBuffer, TEXT("DX12 Path Tracer | FPS: %.1f | Frame Time: %.2f ms"),
+        _stprintf_s(titleBuffer,
+                    TEXT("DX12 Path Tracer | FPS: %.1f | Frame Time: %.2f ms"),
                     m_fps, 1000.0 / m_fps);
         m_window->SetTitle(titleBuffer);
     }
@@ -103,9 +105,7 @@ void Application::Tick()
 
 void Application::Shutdown()
 {
-    // TODO: Wait for GPU to idle
-    // TODO: Release all resources
-    // TODO: Destroy window
+    // RAII handles everything 💅
 }
 
 void Application::OnResize(UINT width, UINT height)

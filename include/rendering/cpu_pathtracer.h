@@ -19,7 +19,8 @@ class CpuPathtracer : public IPathTracer
     /// <param name="infoQueue">The DX12 info queue for logging messages.</param>
     /// <param name="width">The initial width of the render target.</param>
     /// <param name="height">The initial height of the render target.</param>
-    CpuPathtracer(ID3D12Device* device, DX12InfoQueue* infoQueue, UINT width, UINT height);
+    CpuPathtracer(ID3D12Device* device, DX12InfoQueue* infoQueue, UINT width,
+                  UINT height);
     ~CpuPathtracer() = default;
 
     /// <summary>
@@ -44,7 +45,6 @@ class CpuPathtracer : public IPathTracer
     /// path tracer continues to render correctly.
     /// </summary>
     auto Resize(const UINT width, const UINT height) -> void override;
-
 
     /// <summary>
     /// Returns the name of the path tracer for display in the UI.

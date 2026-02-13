@@ -13,7 +13,7 @@
         HRESULT hr = (hr_call);                                                \
         if (FAILED(hr))                                                        \
         {                                                                      \
-            std::ostringstream oss;                                           \
+            std::ostringstream oss;                                            \
             oss << "DX12 Error in " << __FILE__ << ":" << __LINE__             \
                 << "\nFunction: " << #hr_call << "\nHRESULT: 0x" << std::hex   \
                 << hr;                                                         \
@@ -43,5 +43,4 @@
             }                                                                  \
             throw std::runtime_error(oss.str());                               \
         }                                                                      \
-    } while (0)\
-
+    } while (0)

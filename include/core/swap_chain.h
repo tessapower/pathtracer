@@ -87,7 +87,7 @@ class SwapChain
   private:
     Microsoft::WRL::ComPtr<IDXGISwapChain4> m_swapChain;
     std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> m_backBuffers;
-    ID3D12Device* m_device = nullptr; // non-owning pointer
+    ID3D12Device* m_device = nullptr;     // non-owning pointer
     DX12InfoQueue* m_infoQueue = nullptr; // non-owning pointer
     UINT m_width = 0;
     UINT m_height = 0;
