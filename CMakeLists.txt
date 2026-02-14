@@ -511,6 +511,11 @@ if(BUILD_TESTS AND GTest_FOUND)
         PRIVATE
             GTest::gtest
             GTest::gtest_main
+            # DirectX 12 libraries
+            d3d12.lib
+            dxgi.lib
+            dxguid.lib
+            d3dcompiler.lib
     )
 
     if(glm_FOUND)
