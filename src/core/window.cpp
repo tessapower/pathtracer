@@ -184,6 +184,38 @@ auto Window::HandleMsg(HWND hwnd, UINT uMsg, WPARAM wParam,
         return 0;
     }
 
+    case WM_MOUSEWHEEL:
+    {
+        int delta = GET_WHEEL_DELTA_WPARAM(wParam);
+        // Normalize to number of detents (notches) the wheel has moved
+
+
+        if (m_mouseWheelCallback)
+        {
+            m_mouseWheelCallback(static_cast<float>(delta) / WHEEL_DELTA);
+        }
+
+        return 0;
+    }
+
+    case WM_LBUTTONDOWN:
+    {
+        m_isMouseTracking = true;
+        // Capture mouse input to receive events outside the window
+        SetCapture(hwnd);
+
+        return 0;
+    }
+
+    case WM_LBUTTONUP:
+    {
+        m_isMouseTracking = false;
+        // Release mouse capture
+        ReleaseCapture();
+
+        return 0;
+    }
+
     case WM_DESTROY: // Sent when the window is being destroyed
     case WM_CLOSE:   // Sent when the window is being closed
     case WM_QUIT:    // Sent when the application is quitting
@@ -257,10 +289,15 @@ void Window::OnKeyUp(int key)
 
 void Window::OnMouseMove(int x, int y)
 {
-    UNREFERENCED_PARAMETER(x);
-    UNREFERENCED_PARAMETER(y);
-    OutputDebugString(TEXT("Mouse move\n"));
-    // TODO: Handle mouse movement for camera control
+    if (m_isMouseTracking && m_mouseMoveCallback)
+    {
+        int deltaX = x - m_lastMouseX;
+        int deltaY = y - m_lastMouseY;
+        m_mouseMoveCallback(x, y, deltaX, deltaY);
+    }
+
+    m_lastMouseX = x;
+    m_lastMouseY = y;
 }
 
 } // namespace pathtracer

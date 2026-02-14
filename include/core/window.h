@@ -16,6 +16,9 @@ class Window
 {
   public:
     using ResizeCallback = std::function<void(UINT width, UINT height)>;
+    using MouseMoveCallback =
+        std::function<void(int x, int y, int deltaX, int deltaY)>;
+    using MouseWheelCallback = std::function<void(float delta)>;
 
     Window(UINT width, UINT height, LPCTSTR title);
     ~Window();
@@ -25,13 +28,13 @@ class Window
     Window& operator=(const Window&) = delete;
 
     /// <summary>
-    /// Process Windows messages (non-blocking)
+    /// Process Windows messages (non-blocking).
     /// </summary>
     /// <returns>false if WM_QUIT received, true otherwise</returns>
     auto ProcessMessages() -> bool;
 
     /// <summary>
-    /// Returns the window handle for DX12 swap chain creation
+    /// Returns the window handle for DX12 swap chain creation.
     /// </summary>
     auto GetHandle() const -> HWND
     {
@@ -39,7 +42,7 @@ class Window
     }
 
     /// <summary>
-    /// Returns the current window width
+    /// Returns the current window width.
     /// </summary>
     auto GetWidth() const -> UINT
     {
@@ -47,7 +50,7 @@ class Window
     }
 
     /// <summary>
-    /// Returns the current window height
+    /// Returns the current window height.
     /// </summary>
     auto GetHeight() const -> UINT
     {
@@ -55,20 +58,36 @@ class Window
     }
 
     /// <summary>
-    /// Set callback for window resize events
+    /// Set callback for window resize events.
     /// </summary>
     auto SetResizeCallback(ResizeCallback callback) -> void
     {
         m_resizeCallback = callback;
     }
 
+   /// <summary>
+    /// Set callback for mouse move events.
+    /// </summary>
+    auto SetMouseMoveCallback(MouseMoveCallback callback) -> void
+    {
+        m_mouseMoveCallback = callback;
+    }
+
     /// <summary>
-    /// Show the window
+    /// Set callback for mouse wheel events.
+    /// </summary>
+    auto SetMouseWheelCallback(MouseWheelCallback callback) -> void
+    {
+        m_mouseWheelCallback = callback;
+    }
+
+    /// <summary>
+    /// Show the window.
     /// </summary>
     auto Show() const -> void;
 
     /// <summary>
-    /// Set the window title
+    /// Set the window title.
     /// </summary>
     auto SetTitle(LPCTSTR title) -> void
     {
@@ -95,6 +114,12 @@ class Window
     UINT m_height = 0;
     LPCTSTR m_className = TEXT("PathTracerWindowClass");
     ResizeCallback m_resizeCallback;
+
+    MouseMoveCallback m_mouseMoveCallback;
+    MouseWheelCallback m_mouseWheelCallback;
+    int m_lastMouseX = 0;
+    int m_lastMouseY = 0;
+    bool m_isMouseTracking = false;
 };
 
 } // namespace pathtracer
