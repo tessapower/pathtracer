@@ -2,6 +2,7 @@
 
 #include "core/dx12_info_queue.h"
 #include "rendering/renderer.h"
+#include "scene/camera.h"
 #include "utils/d3dx12.h"
 #include "utils/exception_macros.h"
 
@@ -140,7 +141,7 @@ Renderer::~Renderer()
     // reverse order of creation, so no need to manually release them here
 }
 
-auto Renderer::RenderFrame() -> void
+auto Renderer::RenderFrame(const Camera& camera) -> void
 {
     const UINT frameIdx = m_swapChain->GetCurrentBackBufferIndex();
 

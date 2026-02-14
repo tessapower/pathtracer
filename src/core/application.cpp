@@ -4,16 +4,16 @@
 #include "core/dx12_device.h"
 #include "core/window.h"
 #include "rendering/compute_pathtracer.h"
-#include "rendering/cpu_pathtracer.h"
+// #include "rendering/cpu_pathtracer.h"
 #include "rendering/renderer.h"
+#include "scene/camera.h"
 
 namespace pathtracer
 {
 Application::Application(const UINT width, const UINT height, LPCTSTR title)
+    : m_width(width), m_height(height), m_title(title),
+      m_aspectRatio(static_cast<float>(width) / static_cast<float>(height))
 {
-    m_width = width;
-    m_height = height;
-    m_title = title;
     Initialize();
 }
 
@@ -58,12 +58,24 @@ void Application::Initialize()
     // Create renderer
     m_renderer = std::make_unique<Renderer>(
         m_device->GetDevice(), m_device->GetFactory(),
-        m_device->GetCommandQueue(), m_device->GetInfoQueue(), std::move(pathtracer),
-        m_window->GetHandle(), m_window->GetWidth(), m_window->GetHeight());
+        m_device->GetCommandQueue(), m_device->GetInfoQueue(),
+        std::move(pathtracer), m_window->GetHandle(), m_window->GetWidth(),
+        m_window->GetHeight());
 
-    // Set resize callback
+    // Create camera
+    m_camera = std::make_unique<Camera>(m_CAMERA_FOV, m_aspectRatio,
+                                        m_NEAR_PLANE, m_FAR_PLANE);
+
+    // Set window callbacks
     m_window->SetResizeCallback([this](UINT width, UINT height)
                                 { OnResize(width, height); });
+
+    m_window->SetMouseMoveCallback(
+        [this](int x, int y, int dx, int dy)
+        { m_camera->Rotate(dx * m_ROTATE_SPEED, dy * m_ROTATE_SPEED); });
+
+    m_window->SetMouseWheelCallback(
+        [this](float delta) { m_camera->Zoom(-delta * m_ZOOM_SENSITIVITY); });
 
     // Show the window
     m_window->Show();
@@ -100,7 +112,7 @@ void Application::Tick()
         m_window->SetTitle(titleBuffer);
     }
 
-    m_renderer->RenderFrame();
+    m_renderer->RenderFrame(*m_camera);
 }
 
 void Application::Shutdown()
@@ -113,6 +125,9 @@ void Application::OnResize(UINT width, UINT height)
     m_width = width;
     m_height = height;
     m_renderer->OnResize(m_width, m_height);
+
+    m_aspectRatio = static_cast<float>(m_width) / static_cast<float>(m_height);
+    m_camera->SetAspectRatio(m_aspectRatio);
 }
 
 } // namespace pathtracer

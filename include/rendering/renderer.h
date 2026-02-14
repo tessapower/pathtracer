@@ -4,6 +4,7 @@
 #include "core/swap_chain.h"
 #include "interfaces/pathtracer_interface.h"
 #include "platform/windows_fwd.h"
+#include "scene/camera.h"
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -43,7 +44,8 @@ class Renderer
     /// <summary>
     /// Renders a frame using the current pathtracer.
     /// </summary>
-    auto RenderFrame(/*const Camera& camera, const Scene& scene*/) -> void;
+    /// <param name="camera">Reference to the camera</param>
+    auto RenderFrame(const Camera& camera /*, const Scene& scene*/) -> void;
 
     /// <summary>
     /// Handles window resize events.

@@ -2,8 +2,10 @@
 #define APPLICATION_H
 
 #include "platform/windows_fwd.h"
+#include "scene/camera.h"
 
 #include <chrono>
+#include <glm/glm.hpp>
 #include <memory>
 
 // Forward declarations
@@ -94,6 +96,13 @@ class Application
     UINT m_width = 0;
     UINT m_height = 0;
     LPCTSTR m_title;
+    std::unique_ptr<Camera> m_camera;
+    float m_aspectRatio;
+    static constexpr float m_NEAR_PLANE = 0.1f;
+    static constexpr float m_FAR_PLANE = 1000.0f;
+    static constexpr float m_CAMERA_FOV = glm::radians(60.0f);
+    static constexpr float m_ROTATE_SPEED = 0.005f; // radians per pixel
+    static constexpr float m_ZOOM_SENSITIVITY = 0.5f;
 
     // Performance tracking
     std::chrono::high_resolution_clock::time_point m_lastFrameTime;
