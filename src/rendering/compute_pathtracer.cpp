@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <string.h>
 
 namespace pathtracer
 {
@@ -25,6 +26,7 @@ ComputePathtracer::ComputePathtracer(ID3D12Device* device,
     CreatePipelineState();
     CreateOutputTexture();
     CreateDescriptorHeap();
+    CreateCameraConstantBuffers();
 }
 
 auto ComputePathtracer::Render(ID3D12GraphicsCommandList* commandList,
@@ -35,6 +37,11 @@ auto ComputePathtracer::Render(ID3D12GraphicsCommandList* commandList,
 {
     // Explicitly mark unused parameter to avoid warnings
     (void)rtvHandle;
+
+    // Upload camera data to curren frame's constant buffer
+    CameraGPUData cameraData = camera.GetGPUData();
+    memcpy(m_cameraConstantBufferMappedData[frameIdx], &cameraData,
+           sizeof(cameraData));
 
     // Set the compute pipeline state and root signature
     // Tells GPU which shader to run and what resources to expect
@@ -55,7 +62,11 @@ auto ComputePathtracer::Render(ID3D12GraphicsCommandList* commandList,
         // Shaders access descriptors via GPU handles instead of CPU handles
         m_descriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
-    // Dispatch computer shader (runs on GPU)
+    // Bind camera CBV (root param 1)
+    commandList->SetComputeRootConstantBufferView(
+        1, m_cameraConstantBuffers[frameIdx]->GetGPUVirtualAddress());
+
+    // Dispatch compute shader (runs on GPU)
 
     /// NOTE TO SELF:
     /// The compute shader will execute in parallel across many threads on the
@@ -95,9 +106,9 @@ auto ComputePathtracer::Render(ID3D12GraphicsCommandList* commandList,
 
     // Transition render target: RENDER_TARGET to COPY_DEST
     CD3DX12_RESOURCE_BARRIER renderTargetToCopyDest =
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET,
-            D3D12_RESOURCE_STATE_COPY_DEST);
+        CD3DX12_RESOURCE_BARRIER::Transition(renderTarget,
+                                             D3D12_RESOURCE_STATE_RENDER_TARGET,
+                                             D3D12_RESOURCE_STATE_COPY_DEST);
     commandList->ResourceBarrier(1, &renderTargetToCopyDest);
 
     // Copy output texture to render target
@@ -171,14 +182,28 @@ auto ComputePathtracer::LoadComputeShader() -> void
 
 auto ComputePathtracer::CreateRootSignature() -> void
 {
+    /// NOTE TO SELF:
+    /// Two ways to bind resources in D3D12:
+    ///
+    /// 1. Descriptor Table (UAV): Indirect binding through descriptor heap
+    ///    - Requires descriptor range definition.
+    ///    - Good for resources that don't change often.
+    ///    - Flow: Root signature -> Heap -> Descriptor -> Resource
+    ///
+    /// 2. Inline Descriptor (CBV): Direct GPU address in root signature
+    ///    - No descriptor range needed.
+    ///    - Faster, perfect for per-frame updates like camera data.
+    ///    - Flow: Root signature -> Resource (direct)
+
     // v1.1 descriptor ranges
     CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
     ranges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0, 0,
                    D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE); // U0
 
     // Root parameter with v1.1
-    CD3DX12_ROOT_PARAMETER1 rootParams[1];
-    rootParams[0].InitAsDescriptorTable(1, &ranges[0]);
+    CD3DX12_ROOT_PARAMETER1 rootParams[2];
+    rootParams[0].InitAsDescriptorTable(1, &ranges[0]); // UAV table (u0)
+    rootParams[1].InitAsConstantBufferView(0); // CBV at b0 (camera data)
 
     // Versioned root signature descriptor (1.1)
     CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSigDesc;
@@ -351,6 +376,67 @@ auto ComputePathtracer::CreateDescriptorHeap() -> void
     m_device->CreateUnorderedAccessView(m_outputTexture.Get(),
                                         nullptr, // No counter resource
                                         &uavDesc, cpuHandle);
+}
+
+auto ComputePathtracer::CreateCameraConstantBuffers() -> void
+{
+    /// NOTE TO SELF:
+    /// Constant buffers must be 256-byte aligned (hw req.), so round up
+    /// to the next multiple of 256 bytes.
+    const UINT bufferSize = (sizeof(CameraGPUData) + 255) & ~255;
+
+    // CPU writes to this every frame, GPU reads from it in shader.
+    CD3DX12_HEAP_PROPERTIES uploadHeap(D3D12_HEAP_TYPE_UPLOAD);
+    CD3DX12_RESOURCE_DESC bufferDesc =
+        CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+
+    for (UINT i = 0; i < SwapChain::BUFFER_COUNT; ++i)
+    {
+#ifdef _DEBUG
+        if (m_infoQueue)
+        {
+            DX12_CHECK_MSG(m_device->CreateCommittedResource(
+                               &uploadHeap, D3D12_HEAP_FLAG_NONE, &bufferDesc,
+                               D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                               IID_PPV_ARGS(&m_cameraConstantBuffers[i])),
+                           *m_infoQueue);
+        }
+        else
+#endif // _DEBUG
+        {
+            DX12_CHECK(m_device->CreateCommittedResource(
+                &uploadHeap, D3D12_HEAP_FLAG_NONE, &bufferDesc,
+                D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                IID_PPV_ARGS(&m_cameraConstantBuffers[i])));
+        }
+
+        /// NOTE TO SELF:
+        /// Persistent mapping gets a CPU pointer to GPU memory and allows CPU
+        /// to write directly to the buffer without API calls. We call Map
+        /// once and keep the pointer until destruction. Each frame will
+        /// memcpy() to the mapped pointer.
+        /// 
+        /// readRange(0, 0) tells D3D12 the CPU will never read from this memory,
+        /// we only write to it, never read back.
+        ///
+        /// This patter is efficient for frequently updated buffers like camera
+        /// data, as it avoids the overhead of Map/Unmap calls every frame.
+
+        // We won't read from this buffer on CPU
+        CD3DX12_RANGE readRange(0, 0);
+#ifdef _DEBUG
+        if (m_infoQueue)
+        {
+            DX12_CHECK_MSG(
+                m_cameraConstantBuffers[i]->Map(
+                    0, &readRange, &m_cameraConstantBufferMappedData[i]),
+                *m_infoQueue);
+        }
+#endif // _DEBUG
+
+        DX12_CHECK(m_cameraConstantBuffers[i]->Map(
+            0, &readRange, &m_cameraConstantBufferMappedData[i]));
+    }
 }
 
 } // namespace pathtracer

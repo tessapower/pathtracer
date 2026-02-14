@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/dx12_info_queue.h"
+#include "core/swap_chain.h"
 #include "interfaces/pathtracer_interface.h"
 #include "scene/camera.h"
 
@@ -55,6 +56,7 @@ class ComputePathtracer : public IPathTracer
     auto CreatePipelineState() -> void;
     auto CreateOutputTexture() -> void;
     auto CreateDescriptorHeap() -> void;
+    auto CreateCameraConstantBuffers() -> void;
 
     ID3D12Device* m_device;     // Non-owning
     DX12InfoQueue* m_infoQueue; // Non-owning
@@ -74,6 +76,9 @@ class ComputePathtracer : public IPathTracer
     std::vector<uint8_t> m_shaderBytecode;
     static constexpr const char* m_COMPILED_SHADER_FILE =
         "shaders/simple_pathtracer.cso";
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_cameraConstantBuffers[SwapChain::BUFFER_COUNT];
+    void* m_cameraConstantBufferMappedData[SwapChain::BUFFER_COUNT];
 };
 
 } // namespace pathtracer
