@@ -75,7 +75,7 @@ class ComputePathtracer : public IPathTracer
     // Shader bytecode loaded from file (used to create pipeline state)
     std::vector<uint8_t> m_shaderBytecode;
     static constexpr const char* m_COMPILED_SHADER_FILE =
-        "shaders/simple_pathtracer.cso";
+        "shaders/compute.cso";
 
     Microsoft::WRL::ComPtr<ID3D12Resource> m_cameraConstantBuffers[SwapChain::BUFFER_COUNT];
     void* m_cameraConstantBufferMappedData[SwapChain::BUFFER_COUNT];
