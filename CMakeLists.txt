@@ -229,9 +229,12 @@ if(DXC_EXECUTABLE)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${COMPILED_SHADERS}
                 "${CMAKE_BINARY_DIR}/bin/${CONFIG}/shaders/"
-            COMMENT "Copying shaders to ${CONFIG} output directory"
         )
     endforeach()
+
+    add_custom_command(TARGET CompileShaders POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E echo "Shaders copied to all output directories"
+    )
 endif()
 
 #########################################################
@@ -414,9 +417,9 @@ if(MSVC)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                  PROPERTY VS_STARTUP_PROJECT pathtracer)
 
-    # Set working directory for debugging
-    set_property(TARGET pathtracer
-                 PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
+    # Note: VS_DEBUGGER_WORKING_DIRECTORY is not set here to avoid $<CONFIG> issues
+    # Visual Studio will use the executable's directory by default
+    # which is correct since shaders are copied to bin/$<CONFIG>/shaders/
 endif()
 
 #########################################################
@@ -470,8 +473,7 @@ if(BUILD_BENCHMARKS)
     if(MSVC)
         target_compile_options(pathtracer-benchmark PRIVATE /MP /W4 /wd4265)
         target_link_options(pathtracer-benchmark PRIVATE /SUBSYSTEM:WINDOWS)
-        set_property(TARGET pathtracer-benchmark
-                     PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
+        # Note: VS_DEBUGGER_WORKING_DIRECTORY is not set to avoid $<CONFIG> issues
     endif()
 endif()
 
