@@ -27,7 +27,7 @@ auto Camera::Zoom(float deltaRadius) -> void
 {
     // const static float SPEED = 0.5f;
     static constexpr float MAX = 100.0f;
-    static constexpr float MIN = 0.1f;
+    static constexpr float MIN = 2.0f;
 
     m_radius += deltaRadius;
 
