@@ -90,10 +90,24 @@ auto ComputePathtracer::Render(ID3D12GraphicsCommandList* commandList,
             D3D12_RESOURCE_STATE_COPY_SOURCE);
     commandList->ResourceBarrier(1, &toCopySource);
 
+    // Transition render target: RENDER_TARGET to COPY_DEST
+    CD3DX12_RESOURCE_BARRIER renderTargetToCopyDest =
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            renderTarget, D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_COPY_DEST);
+    commandList->ResourceBarrier(1, &renderTargetToCopyDest);
+
     // Copy output texture to render target
     commandList->CopyResource(renderTarget, m_outputTexture.Get());
 
-    // Transition back to UNORDERED_ACCESS for next frame
+    // Transition render target back: COPY_DEST to RENDER_TARGET
+    CD3DX12_RESOURCE_BARRIER renderTargetToRenderTarget =
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            renderTarget, D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandList->ResourceBarrier(1, &renderTargetToRenderTarget);
+
+    // Transition output texture back to UNORDERED_ACCESS for next frame
     CD3DX12_RESOURCE_BARRIER toUAV = CD3DX12_RESOURCE_BARRIER::Transition(
         m_outputTexture.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE,
         D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
