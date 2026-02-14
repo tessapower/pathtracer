@@ -27,7 +27,7 @@ namespace pathtracer
 class SwapChain
 {
   public:
-    static constexpr UINT BufferCount = 2; // Double buffering
+    static constexpr UINT BUFFER_COUNT = 2; // Double buffering
 
     /// <summary>
     /// Constructor: Create swap chain and back buffers

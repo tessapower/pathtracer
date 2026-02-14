@@ -29,7 +29,7 @@ SwapChain::SwapChain(ID3D12Device* device, IDXGIFactory4* factory,
     swapChainDesc.SampleDesc.Count = 1; // No MSAA
     swapChainDesc.SampleDesc.Quality = 0;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.BufferCount = BufferCount;
+    swapChainDesc.BufferCount = BUFFER_COUNT;
     swapChainDesc.Scaling = DXGI_SCALING_STRETCH; // Scale to window size
     // Discard previous frame after presenting (flip model)
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -129,7 +129,7 @@ void SwapChain::Resize(int width, int height)
     {
         DX12_CHECK_MSG(
             m_swapChain->ResizeBuffers(
-                BufferCount, width, height, DXGI_FORMAT_R16G16B16A16_FLOAT,
+                BUFFER_COUNT, width, height, DXGI_FORMAT_R16G16B16A16_FLOAT,
                 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING // Maintain tearing support
                 ),
             *m_infoQueue);
@@ -138,7 +138,7 @@ void SwapChain::Resize(int width, int height)
 #endif // _DEBUG
     {
         DX12_CHECK(m_swapChain->ResizeBuffers(
-            BufferCount, width, height, DXGI_FORMAT_R16G16B16A16_FLOAT,
+            BUFFER_COUNT, width, height, DXGI_FORMAT_R16G16B16A16_FLOAT,
             DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING // Maintain tearing support
             ));
     }
@@ -166,8 +166,8 @@ ID3D12Resource* SwapChain::GetCurrentBackBuffer() const
 void SwapChain::RetrieveBackBuffers()
 {
     // Get back buffers from swap chain
-    m_backBuffers.resize(BufferCount);
-    for (UINT i = 0; i < BufferCount; ++i)
+    m_backBuffers.resize(BUFFER_COUNT);
+    for (UINT i = 0; i < BUFFER_COUNT; ++i)
     {
 #ifdef _DEBUG
         if (m_infoQueue)

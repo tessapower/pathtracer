@@ -88,8 +88,8 @@ class Renderer
 
     // Sized by BufferCount so one per frame-in-flight!
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator>
-        m_commandAllocators[SwapChain::BufferCount];
-    UINT64 m_fenceValues[SwapChain::BufferCount];
+        m_commandAllocators[SwapChain::BUFFER_COUNT];
+    UINT64 m_fenceValues[SwapChain::BUFFER_COUNT];
 
     // Pathtracer interface
     std::unique_ptr<IPathTracer> m_pathtracer;

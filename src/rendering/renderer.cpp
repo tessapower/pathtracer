@@ -24,7 +24,7 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
 {
     // Create RTV descriptor heap
     D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-    rtvHeapDesc.NumDescriptors = SwapChain::BufferCount;
+    rtvHeapDesc.NumDescriptors = SwapChain::BUFFER_COUNT;
     rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
     rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
@@ -50,7 +50,7 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
         device, factory, commandQueue, infoQueue, hwnd, m_width, m_height);
 
     // Create one command allocator per back buffer
-    for (auto i = 0; i < SwapChain::BufferCount; ++i)
+    for (auto i = 0; i < SwapChain::BUFFER_COUNT; ++i)
     {
 #ifdef _DEBUG
         if (m_infoQueue)
@@ -124,7 +124,7 @@ Renderer::Renderer(ID3D12Device* device, IDXGIFactory4* factory,
     }
 
     // Init fence values
-    for (auto i = 0; i < SwapChain::BufferCount; ++i)
+    for (auto i = 0; i < SwapChain::BUFFER_COUNT; ++i)
     {
         m_fenceValues[i] = 1;
     }
@@ -305,7 +305,7 @@ auto Renderer::CreateBackBufferRTVs() -> void
 
     const auto& backBuffers = m_swapChain->GetBackBuffers();
 
-    for (auto i = 0; i < SwapChain::BufferCount; ++i)
+    for (auto i = 0; i < SwapChain::BUFFER_COUNT; ++i)
     {
         m_device->CreateRenderTargetView(backBuffers[i].Get(), nullptr,
                                          rtvHandle);
