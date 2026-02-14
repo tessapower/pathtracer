@@ -1,6 +1,7 @@
 {
   "name": "pathtracer",
   "version": "0.1.0",
+  "builtin-baseline": "fb544875b93bffebe96c6f720000003234cfba08",
   "dependencies": [
     "stb",
     "glm",
