@@ -293,7 +293,7 @@ void Window::OnMouseMove(int x, int y)
     {
         int deltaX = x - m_lastMouseX;
         int deltaY = y - m_lastMouseY;
-        m_mouseMoveCallback(x, y, deltaX, deltaY);
+        m_mouseMoveCallback(deltaX, deltaY);
     }
 
     m_lastMouseX = x;

@@ -71,8 +71,8 @@ void Application::Initialize()
                                 { OnResize(width, height); });
 
     m_window->SetMouseMoveCallback(
-        [this](int x, int y, int dx, int dy)
-        { m_camera->Rotate(dx * m_ROTATE_SPEED, dy * m_ROTATE_SPEED); });
+        [this](int dx, int dy)
+        { m_camera->Rotate(-dx * m_ROTATE_SPEED, dy * m_ROTATE_SPEED); });
 
     m_window->SetMouseWheelCallback(
         [this](float delta) { m_camera->Zoom(-delta * m_ZOOM_SENSITIVITY); });

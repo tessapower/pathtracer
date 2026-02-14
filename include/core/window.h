@@ -17,7 +17,7 @@ class Window
   public:
     using ResizeCallback = std::function<void(UINT width, UINT height)>;
     using MouseMoveCallback =
-        std::function<void(int x, int y, int deltaX, int deltaY)>;
+        std::function<void(int deltaX, int deltaY)>;
     using MouseWheelCallback = std::function<void(float delta)>;
 
     Window(UINT width, UINT height, LPCTSTR title);
