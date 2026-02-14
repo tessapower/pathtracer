@@ -23,11 +23,11 @@ class IPathTracer
     /// will output the image.</param>
     /// <param name="camera">The camera defining the view for the current
     /// frame.</param>
-    /// <param name="scene">The scene to be rendered.</param>
+    /// <param name="frameIdx">The index of the current frame.</param>
     virtual auto Render(ID3D12GraphicsCommandList* commandList,
                         ID3D12Resource* renderTarget,
-                        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle
-                        //, const Camera& camera,
+                        D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle,
+                        const Camera& camera, const UINT frameIdx
                         // const Scene& scene
                         ) -> void = 0;
 

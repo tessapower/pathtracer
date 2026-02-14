@@ -188,7 +188,7 @@ auto Renderer::RenderFrame(const Camera& camera) -> void
         m_rtvDescriptorSize);
 
     // Render with pathtracer
-    m_pathtracer->Render(m_commandList.Get(), backBuffer, rtvHandle);
+    m_pathtracer->Render(m_commandList.Get(), backBuffer, rtvHandle, camera, frameIdx);
 
     // Transition back to present
     barrier = CD3DX12_RESOURCE_BARRIER::Transition(

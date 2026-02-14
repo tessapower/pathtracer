@@ -2,6 +2,7 @@
 
 #include "core/dx12_info_queue.h"
 #include "interfaces/pathtracer_interface.h"
+#include "scene/camera.h"
 
 #include <d3d12.h>
 
@@ -34,10 +35,11 @@ class CpuPathtracer : public IPathTracer
     /// target.</param>
     /// <param name="camera">The camera defining the view for the current
     /// frame.</param>
-    /// <param name="scene">The scene to be rendered.</param>
+    /// <param name="frameIdx">The index of the current frame.</param>
     auto Render(ID3D12GraphicsCommandList* commandList,
                 ID3D12Resource* renderTarget,
-                D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle) -> void override;
+                D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle, const Camera& camera,
+                const UINT frameIdx) -> void override;
 
     /// <summary>
     /// Resizes internal resources to match the new width and height of the

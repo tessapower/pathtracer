@@ -2,6 +2,7 @@
 
 #include "core/dx12_info_queue.h"
 #include "rendering/compute_pathtracer.h"
+#include "scene/camera.h"
 #include "utils/d3dx12.h"
 #include "utils/exception_macros.h"
 
@@ -28,7 +29,9 @@ ComputePathtracer::ComputePathtracer(ID3D12Device* device,
 
 auto ComputePathtracer::Render(ID3D12GraphicsCommandList* commandList,
                                ID3D12Resource* renderTarget,
-                               D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle) -> void
+                               D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle,
+                               const Camera& camera, const UINT frameIdx)
+    -> void
 {
     // Explicitly mark unused parameter to avoid warnings
     (void)rtvHandle;
